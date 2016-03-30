@@ -10,7 +10,7 @@ import api from './routes/api';
 import quiz from './routes/quiz';
 
 
-mongoose.connect(process.env.MONGO_URL);
+mongoose.connect(process.env.MONGODB_URI);
 
 const app = express();
 
