@@ -7,7 +7,6 @@ import restify from 'express-restify-mongoose';
 
 import routes from './routes/index';
 import api from './routes/api';
-import quiz from './routes/quiz';
 
 
 mongoose.connect(process.env.MONGODB_URI);
@@ -20,7 +19,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(api);
-app.use(quiz);
 app.use('/', routes);
 
 // catch 404 and forward to error handler
