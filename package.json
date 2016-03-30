@@ -4,8 +4,9 @@
   "description": "Gather feedback from your customers",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "mocha --compilers js:babel-register $(find ./src -name '*.spec.js')",
-    "dev": "PORT=3000 MONGO_URL=mongodb://localhost/ratee node dev.js"
+    "dev": "PORT=3000 MONGODB_URI=mongodb://localhost/ratee node dev.js"
   },
   "repository": {
     "type": "git",
