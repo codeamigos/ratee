@@ -1,5 +1,6 @@
 require('babel-register');
 
 var app = require('./src/instance').default;
+var config = require('./src/instance/config').default;
 
-app.listen(process.env.PORT);
+app.listen(config.port);
