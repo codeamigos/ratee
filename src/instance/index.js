@@ -2,7 +2,6 @@ import express from 'express';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
-import restify from 'express-restify-mongoose';
 
 import config from './config';
 import routes from './routes/index';
@@ -22,18 +21,18 @@ app.use('/', routes);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  var err = new Error('Not Found');
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // production error handler
 // no stacktraces leaked to user
-app.use((err, req, res, next) => {
+app.use((err, req, res, next) => { // eslint-disable-line
   res.status(err.status || 500);
   res.json({
     message: err.message,
-    error: err
+    error: err,
   });
 });
 
