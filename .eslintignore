@@ -1,6 +1,5 @@
 node_modules
-migrations
 webpack.*
-dev-server.js
 index.js
+dev.js
 .public

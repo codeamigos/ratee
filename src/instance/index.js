@@ -2,6 +2,8 @@ import express from 'express';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
+import restify from 'express-restify-mongoose';
+import path from 'path';
 
 import config from './config';
 import routes from './routes/index';
@@ -13,7 +15,7 @@ mongoose.connect(config.mongodbUri);
 const app = express();
 
 app.use(logger('dev'));
-const publicPath = join(process.cwd(), '.public');
+const publicPath = path.join(process.cwd(), '.public');
 app.use('/public', express.static(publicPath));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
