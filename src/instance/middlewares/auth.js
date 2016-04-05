@@ -5,7 +5,7 @@ import User from '../models/User';
 
 
 export default function auth(req, res, next) {
-  const token = req.headers['X-Authorization'];
+  const token = req.headers['x-auth'];
 
   if (!token) {
     return res.sendStatus(403);
@@ -16,7 +16,7 @@ export default function auth(req, res, next) {
       return res.sendStatus(403);
     }
 
-    User.findById(decoded, (err, user) => {
+    User.findById(decoded.userId, (err, user) => {
       if (err || !user) {
         return res.sendStatus(403);
       }

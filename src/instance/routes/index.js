@@ -27,3 +27,5 @@ router.get('*', (req, res) => {
 });
 
 export default router;
+
+// TEMPORAL ROUTE

@@ -10,6 +10,10 @@ const UserSchema = Schema({
     type: String,
     required: true,
   },
+  companies: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Company',
+  }],
 }, { timestamps: true });
 
 export default mongoose.model('User', UserSchema);
