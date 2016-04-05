@@ -23,12 +23,10 @@ var devServer = new WebpackDevServer(webpack(config), {
   ]
 });
 
-
 var appConfig = require('./src/instance/config').default;
-
 devServer.listen(appConfig.port, 'localhost', function () {
   console.log('Listening at http://%s:%s', 'localhost', appConfig.port);
 });
 
-var app = require('./src/instance').default;
+var app = require('./src/instance/app').default;
 app.listen(appPort);

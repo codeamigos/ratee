@@ -1,17 +1,15 @@
 import express from 'express';
-import restify from 'express-restify-mongoose';
 import jwt from 'jsonwebtoken';
 
 import config from '../config';
+import auth from '../middlewares/auth';
 import User from '../models/User';
 
 
 const router = express.Router();
 
-restify.serve(router, User);
-
-router.post('/api/v1/authenticate', (req, res) => {
-  User.findOne({ email: req.body.email }, (err, user) => {
+router.post('/api/authenticate', (req, res) => {
+  User.findOne({ email: req.body.email }).populate('companies').exec((err, user) => {
     if (err) {
       throw err;
     }
@@ -22,10 +20,14 @@ router.post('/api/v1/authenticate', (req, res) => {
     }
 
     const expires = 1440 * 60;
-    const token = jwt.sign(user._id, config.tokenSecret, { expiresIn: expires });
+    const token = jwt.sign({ userId: user.id }, config.tokenSecret, { expiresIn: expires });
 
     res.json({ token, expires });
   });
+});
+
+router.get('/api/user', auth, (req, res) => {
+  res.json(req.user);
 });
 
 export default router;
