@@ -1,6 +1,6 @@
 @import "../styles/variables.sass"
 @import "../styles/mixins.sass"
-@import "../styles/offsets.sass" 
+@import "../styles/offsets.sass"
 
 @define-mixin createInput $fontColor $borderColor $bgColor
   border-radius: $border-radius-base
@@ -13,9 +13,18 @@
   background-color: $bgColor
   color: $fontColor
   display: block
+  width: 100%
+  margin-bottom: $v-padding
+
+  &:hover,
+  &:focus
+    filter: brightness(98%)
+    // background-color: color(#ffffff hue(200))
+    // border-color: darken($borderColor, $10%)
+    outline: 0
 
 .input
-  @mixin createInput $inp-font-color $gray-light #fff
+  @mixin createInput $inp-font-color $gray-lighter #fff
     ::placeholder
       color: $inp-plc-color:
 
