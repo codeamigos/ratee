@@ -6,9 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "test": "mocha --compilers js:babel-register $(find ./src -name '*.spec.js')",
-    "dev": "PORT=3000 MONGODB_URI=mongodb://localhost/ratee node dev.js",
-    "lint": "./node_modules/.bin/eslint ./src/; exit 0",
-    "dev": "node dev.js"
+    "dev": "node dev.js",
+    "lint": "./node_modules/.bin/eslint ./src/; exit 0"
   },
   "repository": {
     "type": "git",
@@ -22,14 +21,43 @@
   },
   "homepage": "https://github.com/esceenze/ratee#readme",
   "dependencies": {
+    "autoprefixer": "^6.3.5",
+    "babel-core": "^6.7.4",
+    "babel-loader": "^6.2.4",
     "babel-preset-es2015": "^6.6.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
     "babel-register": "^6.7.2",
     "body-parser": "^1.15.0",
+    "css-loader": "^0.23.1",
     "express": "^4.13.4",
     "express-restify-mongoose": "^3.2.0",
+    "history": "^2.0.1",
     "jsonwebtoken": "^5.7.0",
+    "lost": "^6.7.2",
     "mongoose": "^4.4.10",
-    "morgan": "^1.7.0"
+    "morgan": "^1.7.0",
+    "postcss-alias": "^0.2.2",
+    "postcss-autoreset": "^1.1.5",
+    "postcss-center": "^1.0.0",
+    "postcss-crip": "^2.0.0",
+    "postcss-cssnext": "^2.5.1",
+    "postcss-font-magician": "^1.4.0",
+    "postcss-import": "^8.0.2",
+    "postcss-initial": "^1.5.0",
+    "postcss-loader": "^0.8.2",
+    "postcss-position": "^0.4.0",
+    "postcss-reporter": "^1.3.3",
+    "postcss-size": "^1.0.0",
+    "precss": "^1.4.0",
+    "react": "^0.14.8",
+    "react-css-modules": "^3.7.6",
+    "react-dom": "^0.14.8",
+    "react-intl": "^2.0.0-rc-1",
+    "react-router": "^2.0.1",
+    "style-loader": "^0.13.1",
+    "sugarss": "^0.1.2",
+    "webpack": "^1.12.14"
   },
   "devDependencies": {
     "babel-eslint": "^6.0.2",
@@ -37,6 +65,8 @@
     "eslint-cli": "^1.1.0",
     "eslint-plugin-react": "^4.2.3",
     "expect": "^1.16.0",
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "react-hot-loader": "^1.3.0",
+    "webpack-dev-server": "^1.14.1"
   }
 }

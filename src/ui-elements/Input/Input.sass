@@ -1,0 +1,29 @@
+@import "../styles/variables.sass"
+@import "../styles/mixins.sass"
+@import "../styles/offsets.sass" 
+
+@define-mixin createInput $fontColor $borderColor $bgColor
+  border-radius: $border-radius-base
+  font-family: $font-family-base
+  line-height: $h
+  padding: $v-padding $h-padding
+  font-size: $f
+  border: $btn-border-width solid $borderColor
+  border-radius: $border-radius-base
+  background-color: $bgColor
+  color: $fontColor
+  display: block
+
+.input
+  @mixin createInput $inp-font-color $gray-light #fff
+    ::placeholder
+      color: $inp-plc-color:
+
+.inline
+  display: inline-block
+
+.lg
+  font-size: calc($f * 1.25)
+
+.sm
+  font-size: calc($f * 0.75)
