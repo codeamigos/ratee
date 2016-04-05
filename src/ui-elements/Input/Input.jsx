@@ -5,7 +5,7 @@ import cx from 'classnames';
 
 import styles from './Input.sass';
 
-class BtnOutline extends Component {
+class Input extends Component {
   static propTypes = {
     value: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
@@ -48,4 +48,4 @@ class BtnOutline extends Component {
   }
 }
 
-export default css(BtnOutline, styles, {allowMultiple: true});
+export default css(Input, styles, {allowMultiple: true});
