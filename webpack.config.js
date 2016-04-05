@@ -13,8 +13,6 @@ var initial = require('postcss-initial');
 
 // styling
 
-var alias = require('postcss-alias');
-var crip = require('postcss-crip');
 var magician = require('postcss-font-magician');
 var center = require('postcss-center');
 var position = require('postcss-position');
@@ -68,7 +66,7 @@ module.exports = {
     ]
   },
   postcss: function () {
-        return [/*autoreset({ all: initial }), */cssnext, precss, lost, alias, crip, magician, center, position, size, reporter({ clearMessages: true })];
+        return [/*autoreset({ all: initial }), */lost, cssnext, precss, magician, center, position, size, reporter({ clearMessages: true })];
   },
   debug: true
 };

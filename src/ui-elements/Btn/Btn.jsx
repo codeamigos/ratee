@@ -5,21 +5,23 @@ import cx from 'classnames';
 
 import styles from './Btn.sass';
 
-class BtnOutline extends Component {
+class Btn extends Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
     outline: PropTypes.bool,
+    block: PropTypes.bool,
     lg: PropTypes.bool,
     sm: PropTypes.bool,
   }
 
   render() {
-    const { text, outline, lg, sm } = this.props;
+    const { text, outline, lg, sm, block } = this.props;
 
     const styleName = cx({
       btn: !outline,
       'btn-outline': outline,
       lg: lg,
+      block: block,
       sm: sm,
     });
 
@@ -29,4 +31,4 @@ class BtnOutline extends Component {
   }
 }
 
-export default css(BtnOutline, styles, {allowMultiple: true});
+export default css(Btn, styles, {allowMultiple: true});

@@ -1,4 +1,4 @@
-@import "../styles/variables.sass" 
+@import "../styles/variables.sass"
 @import "../styles/mixins.sass"
 @import "../styles/offsets.sass"
 
@@ -12,6 +12,17 @@
   border-radius: $border-radius-base
   background-color: $bgColor
   color: $fontColor
+  transition: all .2s
+
+  &:hover,
+  &:focus
+    filter: brightness(105%)
+    background-color: $borderColor
+    color: #fff
+    // border-color: darken($borderColor, $10%)
+    // box-shadow: 0 0 0 2px #fff
+    outline: 0
+
 
 .btn-outline
   @mixin createBtn $brand-primary $brand-primary transparent
@@ -24,3 +35,7 @@
 
 .sm
   font-size: calc($f * 0.75)
+
+.block
+  display: block
+  width: 100%
