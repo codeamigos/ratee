@@ -24,11 +24,13 @@ var MODULE_DERICTORIES = ['node_modules', 'lib'];
 module.exports = {
   devtool: '#inline-source-map',
   entry: {
+    quiz: path.join(__dirname, 'src', 'quiz'),
     admin: [
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
       path.join(__dirname, 'src', 'admin')
-    ]
+    ],
+    quiz: path.join(__dirname, 'src', 'quiz')
   },
   output: {
     path: path.join(__dirname, '.public'),
@@ -43,11 +45,16 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
   ],
   module: {
+    noParse: [/.elm$/],
     loaders: [
       {
         test: /\.jsx?$/,
-        exclude: /(node_modules|bower_components)/,
+        exclude: /(node_modules|bower_components|src\/quiz)/,
         loaders: ['react-hot', 'babel']
+      },
+      {
+        test: /\.elm$/,
+        loaders: ['elm-webpack?pathToMake=node_modules/.bin/elm-make']
       },
       {
        test:   /\.sass$/,
