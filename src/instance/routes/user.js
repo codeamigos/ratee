@@ -8,10 +8,10 @@ import User from '../models/User';
 
 const router = express.Router();
 
-router.post('/api/authenticate', (req, res) => {
+router.post('/api/authenticate', (req, res, next) => {
   User.findOne({ email: req.body.email }).populate('companies').exec((err, user) => {
     if (err) {
-      throw err;
+      return next(err);
     }
 
     const incorrectCredentials = !user || user.password !== req.body.password;

@@ -10,7 +10,7 @@ const FeedbackSchema = Schema({
   customer: {
     type: Schema.Types.ObjectId,
     ref: 'Customer',
-    required: true,
+    // required: true,
   },
   answers: [{
     question: {
