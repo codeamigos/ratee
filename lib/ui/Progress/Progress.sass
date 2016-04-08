@@ -1,0 +1,25 @@
+@import "ui/styles/variables.sass"
+
+
+@define-mixin createProgress $color $height
+  position: relative
+  height: $height
+  border-radius: 2em
+  background: $gray
+  width: 100%
+  min-width: 50px
+
+  .bar
+    height: $height
+    background: $color
+    border-radius: 2em
+
+.progress
+  @mixin createProgress $brand-primary .75rem
+  width: 100%
+
+.ml
+  margin-left: calc($h * .5)
+
+.mr
+  margin-right: calc($h * .5)

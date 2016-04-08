@@ -1,0 +1,25 @@
+@import "ui/styles/variables.sass"
+
+.icon
+  vertical-align: middle
+  display: inline-block
+  margin-top: -.15em
+
+.ml
+  margin-left: calc($h * .5)
+
+.mr
+  margin-right: calc($h * .5)
+
+.muted
+  opacity: .5
+
+@each $size in (2, 3, 4)
+  .x$(size)
+    font-size: calc($font-size-base * $size)
+
+.spin
+  animation: spin infinite .5s linear
+
+.sm
+  font-size: calc($font-size-base * .85)

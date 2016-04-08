@@ -1,0 +1,44 @@
+@import "../styles/variables.sass"
+
+.card
+  border-radius: $border-radius-base
+  background: #fff
+  color: $text-color
+  padding: 1.25rem 1.75rem
+  width: 100%
+  margin-bottom: calc($h * .5)
+  lost-utility: clearfix
+
+  .h1,
+  .h2,
+  .h3,
+  .h4,
+  .h5,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5
+    &:first-child
+      margin-top: 0
+
+.dark
+  background: $gray-light
+
+.lg
+  border-radius: $border-radius-large
+  padding: 2.5rem 3rem
+
+.sm
+  border-radius: $border-radius-small
+  padding: .75rem 1rem
+
+.xs
+  border-radius: $border-radius-small
+  padding: .5rem .75rem
+
+.shadow
+  box-shadow: 0 2px 5px -2px rgba(60, 60, 60, .45)
+
+.inline
+  display: inline-block
