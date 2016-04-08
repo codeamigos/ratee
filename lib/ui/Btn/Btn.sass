@@ -1,0 +1,49 @@
+@import "../styles/variables.sass"
+
+@define-mixin createBtn $fontColor $borderColor $bgColor
+  border-radius: $border-radius-base
+  font-family: $font-family-base
+  padding: $v-padding $h-padding
+  line-height: $h
+  font-size: $f
+  border: $component-border-width solid $borderColor
+  border-radius: $border-radius-base
+  background-color: $bgColor
+  color: $fontColor
+  transition: all .2s
+
+  &:hover,
+  &:focus
+    filter: brightness(105%)
+    background-color: $borderColor
+    color: #fff
+    // border-color: darken($borderColor, $10%)
+    // box-shadow: 0 0 0 2px #fff
+    outline: 0
+
+
+.outline
+  @mixin createBtn $brand-primary $brand-primary transparent
+
+.btn
+  @mixin createBtn #ffffff $brand-primary $brand-primary
+
+.lg
+  font-size: calc($f * 1.25)
+
+.sm
+  padding: calc($v-padding * .5) calc($h-padding * .5)
+
+.xs
+  font-size: calc($f * .9)
+  padding: calc($v-padding * .25) calc($h-padding * .5)
+
+.ml
+  margin-left: calc($h * .5)
+
+.mr
+  margin-right: calc($h * .5)
+
+.block
+  display: block
+  width: 100%

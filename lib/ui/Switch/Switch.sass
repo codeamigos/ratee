@@ -1,0 +1,44 @@
+@import "ui/styles/variables.sass"
+
+.container
+  display: inline-block
+
+.switcher
+  vertical-align: middle
+  display: inline-block
+  position: relative
+  border-radius: calc($h * 2)
+  width: calc($h * 2.2)
+  height: calc($h + $component-border-width + 5px)
+  border: $component-border-width solid $gray-light
+  background: transparent
+  transition: all .25s
+
+  .round
+    position: absolute
+    display: block
+    width: calc($h)
+    height: @width
+    border-radius: 50%
+    background: $gray-light
+    box-shadow: 0 0 2px -1px rgba(30,30,30,.25)
+    left: calc($component-border-width + 1px)
+    top: calc($component-border-width + 1px)
+    transition: all .25s
+    right: auto
+
+  &.active
+    border-color: $brand-success
+    background: $brand-success
+
+    .round
+      left: calc($h * 1.2 - $component-border-width - 3px)
+      background: #fff
+
+
+
+
+.label
+  display: inline-block
+  padding-left: calc($h * .5)
+  vertical-align: middle

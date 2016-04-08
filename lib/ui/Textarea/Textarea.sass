@@ -1,0 +1,42 @@
+@import "../styles/variables.sass"
+
+@define-mixin createInput $fontColor $borderColor $bgColor
+  border-radius: $border-radius-base
+  font-family: $font-family-base
+  line-height: $h
+  padding: $v-padding $h-padding
+  font-size: $f
+  border: $component-border-width solid $borderColor
+  border-radius: $border-radius-base
+  background-color: $bgColor
+  color: $fontColor
+  display: block
+  width: 100%
+  margin-bottom: $v-padding
+
+  &:hover,
+  &:focus
+    filter: brightness(98%)
+    // background-color: color(#ffffff hue(200))
+    // border-color: darken($borderColor, $10%)
+    outline: 0
+
+.input
+  @mixin createInput $inp-font-color $gray-lighter #fff
+    ::placeholder
+      color: $inp-plc-color:
+
+.inline
+  display: inline-block
+
+.lg
+  font-size: calc($f * 1.25)
+
+.sm
+  font-size: calc($f * 0.75)
+
+.ml
+  margin-left: calc($h * .5)
+
+.mr
+  margin-right: calc($h * .5)

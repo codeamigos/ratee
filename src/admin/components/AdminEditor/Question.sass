@@ -1,0 +1,48 @@
+@import "ui/styles/variables.sass"
+
+.question
+  position: relative
+  white-space: nowrap
+  padding: calc($h * .5) $h
+  margin-left: -$h
+  background: transparent
+  transition: background .25s
+
+  .number
+    color: $gray
+
+  .title
+    font-size: calc($f * 1.25)
+
+  .up,
+  .down
+    display: block
+    position: absolute
+    right: $h
+    size: $h
+    text-align: center
+    line-height: $h
+    opacity: 0
+    background: $gray-light
+    border-radius: 50%
+
+  .down
+    bottom: calc(-$h * .5)
+
+  .up
+    top: calc(-$h * .5)
+
+  &:hover
+    background: rgba(30,30,30,.05)
+
+    .up,
+    .down
+      opacity: 1
+
+  &:first-of-type
+    .up
+      display: none
+
+  &:last-of-type
+    .down
+      display: none

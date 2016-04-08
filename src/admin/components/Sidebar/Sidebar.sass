@@ -1,0 +1,58 @@
+@import "ui/styles/variables.sass"
+
+@lost flexbox no-flex
+
+.nav-side
+  z-index: 9
+  padding-top: $nav-height
+  lost-column: 1/5 0
+  position: fixed
+  min-height: 100vh
+  background: $gray-dark
+  color: $gray
+
+  .nav-item
+    display: block
+    color: $gray-lighter
+    padding: calc($v-padding * 1.5) $h-padding
+    transition: all .25s
+    margin-left: calc($h-padding * .5)
+    padding-left: calc($h-padding * .5)
+    border-top-left-radius: $border-radius-base
+    border-bottom-left-radius: $border-radius-base
+
+    &:hover
+      background: rgba(50,50,50,.15)
+      text-decoration: none
+
+  .nav-divider
+    border-top: 1px solid rgba(50,50,50,.15)
+    margin: $h 0
+    width: 100%
+
+  .nav-header
+    padding: calc($v-padding * 3.5) $h-padding calc($v-padding * 1.5)
+
+    .img-circle
+      width: 50px
+      height: @width
+      position: relative
+      border-radius: 50%
+      vertical-align: middle
+      margin-right: $h
+
+    .title
+      margin: 0
+      display: inline-block
+      vertical-align: middle
+
+
+.active
+  background: $gray-lighter !important
+  color: $gray-darker !important
+  text-decoration: none
+
+
+  .material-icons
+    opacity: 1 !important
+    color: $brand-success !important

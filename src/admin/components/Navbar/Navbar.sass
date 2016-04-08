@@ -1,0 +1,43 @@
+@import "ui/styles/variables.sass"
+
+@lost flexbox no-flex
+
+.logo
+  lost-column: 1/5 0
+  height: $nav-height
+  margin-left: -$h
+  padding-left: $h
+  margin-right: 8px !important
+  a
+    color: #fff
+    line-height: $nav-height
+
+
+.nav
+  height: $nav-height
+  background: $brand-primary
+  color: #fff
+  padding-left: $h
+  padding-right: $h
+  position: absolute
+  width: 100%
+  z-index: 10
+
+  .nav-pull-right
+    float: right
+
+  .nav-item
+    display: inline-block
+    line-height: $nav-height
+    color: #fff
+    padding: 0 $h-padding
+    transition: all .25s
+
+    &:hover
+      background: rgba(50,50,50,.15)
+      text-decoration: none
+
+  .active
+    background: $brand-success !important
+    color: #fff !important
+    text-decoration: none

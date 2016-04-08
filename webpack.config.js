@@ -10,6 +10,7 @@ var reporter = require('postcss-reporter');
 var lost = require('lost');
 var sugarss = require('sugarss');
 var initial = require('postcss-initial');
+var postcssImport = require('postcss-import');
 
 // styling
 
@@ -17,6 +18,8 @@ var magician = require('postcss-font-magician');
 var center = require('postcss-center');
 var position = require('postcss-position');
 var size = require('postcss-size');
+
+var MODULE_DERICTORIES = ['node_modules', 'lib'];
 
 module.exports = {
   devtool: '#inline-source-map',
@@ -33,8 +36,8 @@ module.exports = {
     publicPath: '/public/'
   },
   resolve: {
-    extensions: ['', '.js', '.jsx', '.json', '.sass'],
-    modulesDirectories: ['node_modules', 'src/ui-elements']
+    extensions: ['', '.js', '.jsx', '.json'],
+    modulesDirectories: MODULE_DERICTORIES,
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
@@ -65,8 +68,22 @@ module.exports = {
       }
     ]
   },
-  postcss: function () {
-        return [/*autoreset({ all: initial }), */lost, cssnext, precss, magician, center, position, size, reporter({ clearMessages: true })];
+  postcss: function (webpack) {
+    return [
+      postcssImport({
+        addDependencyTo: webpack,
+        path: MODULE_DERICTORIES
+      }),
+      /*autoreset({ all: initial }), */
+      lost,
+      cssnext,
+      precss,
+      magician,
+      center,
+      position,
+      size,
+      reporter({ clearMessages: true })
+    ];
   },
   debug: true
 };

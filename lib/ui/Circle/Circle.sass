@@ -1,0 +1,42 @@
+@import "ui/styles/variables.sass"
+
+
+@define-mixin createCircle $fontColor $borderColor $bgColor
+  position: relative
+  display: inline-block
+  text-align: center
+  width: 2em
+  height: @width
+  line-height: @width
+  background: $bgColor
+  color: $fontColor
+  border: $component-border-width solid $borderColor
+  border-radius: 50%
+  font-size: calc($f * 1.25)
+
+
+.outline
+  @mixin createCircle $brand-primary $gray-light transparent
+
+.circle
+  @mixin createCircle #fff $brand-primary $brand-primary
+
+.white
+  @mixin createCircle $brand-primary #fff #fff
+
+
+.lg
+  font-size: calc($f * 2)
+
+.sm
+  font-size:$f
+
+
+.xs
+  font-size: calc($f * .75)
+
+.ml
+  margin-left: calc($h * .5)
+
+.mr
+  margin-right: calc($h * .5)

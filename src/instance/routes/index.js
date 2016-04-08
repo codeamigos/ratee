@@ -10,7 +10,7 @@ router.get('/setup', (req, res) => {
   });
 });
 
-router.get('/admin', (req, res) => {
+router.get('/admin*', (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html>
@@ -18,6 +18,7 @@ router.get('/admin', (req, res) => {
         <meta charset="utf-8">
         <title>Ratee админ</title>
         <meta name="viewport" content="width=device-width, minimum-scale=0.9, maximum-scale=0.9" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
       </head>
       <body>
         <div id="root"></div>

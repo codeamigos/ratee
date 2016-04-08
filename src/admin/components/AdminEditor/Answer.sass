@@ -1,0 +1,49 @@
+@import "ui/styles/variables.sass"
+
+.answer
+  position: relative
+
+  .delete
+    position: absolute
+    height: $h
+    top: 50%
+    margin-top: calc(-$h * .5)
+    right: calc($h * .5)
+    color: $gray
+    transition: color .25s
+
+    &:hover
+      color: $brand-danger
+
+  .up,
+  .down
+    display: block
+    position: absolute
+    right: $h
+    size: $h
+    text-align: center
+    line-height: $h
+    opacity: 0
+    background: $gray-light
+    border-radius: 50%
+
+  .down
+    bottom: calc(-$h * .5)
+
+  .up
+    top: calc(-$h * .5)
+
+  &:hover
+    background: rgba(30,30,30,.05)
+
+    .up,
+    .down
+      opacity: 1
+
+  &:first-of-type
+    .up
+      display: none
+
+  &:last-of-type
+    .down
+      display: none

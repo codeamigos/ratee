@@ -1,0 +1,78 @@
+@import "ui/styles/variables.sass"
+
+.dropdown
+  position: relative
+  display: inline-block
+  cursor: pointer
+
+  .back
+    position: fixed 0
+    z-index: 1000
+    size: 100%
+    display: none
+
+  .content
+    // position: absolute 0 100%
+    position: absolute
+    margin-top: calc($h * .25)
+    z-index: 1001
+    display: none
+    height: 0
+    left: 0
+    top: 100%
+    transition: all .25s
+    min-width: 180px
+    max-width: $screen-sm-max
+
+  &.visible
+    .back,
+    .content
+      display: block
+
+    .content
+      height: auto
+
+.navItem
+  display: inline-block
+
+  .trigger
+    display: inline-block
+    line-height: $nav-height
+    color: #fff
+    padding: 0 $h-padding
+    transition: all .25s
+
+    &:hover
+      background: rgba(50,50,50,.15)
+      text-decoration: none
+
+  .content
+    margin-top: calc(-$h * .5)
+
+.ml
+  margin-left: calc($h * .5)
+
+.mr
+  margin-right: calc($h * .5)
+
+.pullRight
+  display: inline-block
+
+  .content
+    left: auto
+    right: 0
+
+.item
+  position: relative
+  font-size: $f
+  line-height: $h
+  padding: calc($v-padding * .5) calc($$h-padding * .5)
+  background: transparent
+  transition: all .25s
+  margin-left: -1rem
+  margin-right: -1rem
+  cursor: pointer
+
+  &:hover
+    background: rgba(60, 60, 60, .05)
+    color: $gray-darker
