@@ -8,6 +8,7 @@ import config from './config';
 import routes from './routes/index';
 import user from './routes/user';
 import quiz from './routes/quiz';
+import feedback from './routes/feedback';
 
 
 import './models';
@@ -27,6 +28,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(user);
 app.use(quiz);
+app.use(feedback);
 app.use(routes);
 
 // catch 404 and forward to error handler

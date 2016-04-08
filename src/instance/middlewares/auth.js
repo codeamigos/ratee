@@ -16,7 +16,7 @@ export default function auth(req, res, next) {
       return res.sendStatus(403);
     }
 
-    User.findById(decoded.userId, (err, user) => {
+    User.findById(decoded.userId).populate('companies').exec((err, user) => {
       if (err || !user) {
         return res.sendStatus(403);
       }

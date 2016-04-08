@@ -15,7 +15,7 @@ const QuizSchema = Schema({
     kind: {
       type: String,
       required: true,
-      enum: ['single', 'text'],
+      enum: ['singular', 'input'],
     },
     title: {
       type: String,

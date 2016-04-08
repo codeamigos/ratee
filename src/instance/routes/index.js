@@ -3,6 +3,13 @@ import express from 'express';
 
 const router = express.Router();
 
+import { fixtures, resetDb } from './__tests__/fixtures';
+router.get('/setup', (req, res) => {
+  resetDb(fixtures)(() => {
+    res.sendStatus(200);
+  });
+});
+
 router.get('/admin', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -27,5 +34,3 @@ router.get('*', (req, res) => {
 });
 
 export default router;
-
-// TEMPORAL ROUTE
