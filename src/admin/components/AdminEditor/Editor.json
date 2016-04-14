@@ -1,0 +1,30 @@
+[
+  {
+    "id": "Type: One of many",
+    "defaultMessage": "Type: One of many"
+  },
+  {
+    "id": "Answers",
+    "defaultMessage": "Answers"
+  },
+  {
+    "id": "Your question...",
+    "defaultMessage": "Your question..."
+  },
+  {
+    "id": "Some additional info or comments (optional)",
+    "defaultMessage": "Some additional info or comments (optional)"
+  },
+  {
+    "id": "Show question to the client",
+    "defaultMessage": "Show question to the client"
+  },
+  {
+    "id": "An answer var",
+    "defaultMessage": "An answer var"
+  },
+  {
+    "id": "Add answer",
+    "defaultMessage": "Add answer"
+  }
+]
