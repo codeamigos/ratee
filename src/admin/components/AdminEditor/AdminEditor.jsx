@@ -10,11 +10,11 @@ import QuestionsList from './QuestionsList';
 class AdminEditor extends Component {
   state = {
     questions: questionsMok,
-    selectedQuestionId: null,
+    editingQuestionId: null,
   }
 
   viewQuestionDetails = (id) => {
-    this.setState({selectedQuestionId: id});
+    this.setState({editingQuestionId: id});
   }
 
   updateQuestion = (object) => {
@@ -42,7 +42,7 @@ class AdminEditor extends Component {
     });
     this.setState({
       questions: questions,
-      selectedQuestionId: newId,
+      editingQuestionId: newId,
     });
   }
 
@@ -77,12 +77,12 @@ class AdminEditor extends Component {
   }
 
   render() {
-    const { selectedQuestionId } = this.state;
+    const { editingQuestionId } = this.state;
     const questions = this.state.questions.map(q => {
       return (
       {
         ...q,
-        isActive: selectedQuestionId && q.id === selectedQuestionId ? true : false,
+        isActive: editingQuestionId && q.id === editingQuestionId ? true : false,
       }
       );
     });
@@ -100,7 +100,7 @@ class AdminEditor extends Component {
           </div>
           <div styleName="right-column">
             <Editor
-              question={selectedQuestionId && questions.filter(q => q.id === selectedQuestionId)[0]}
+              question={editingQuestionId && questions.filter(q => q.id === editingQuestionId)[0]}
               updateQuestion={this.updateQuestion}
             />
           </div>
