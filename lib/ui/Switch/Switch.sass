@@ -4,6 +4,7 @@
   display: inline-block
 
 .switcher
+  cursor: pointer
   vertical-align: middle
   display: inline-block
   position: relative
@@ -20,16 +21,20 @@
     width: calc($h)
     height: @width
     border-radius: 50%
-    background: $gray-light
+    background: $gray
     box-shadow: 0 0 2px -1px rgba(30,30,30,.25)
     left: calc($component-border-width + 1px)
     top: calc($component-border-width + 1px)
     transition: all .25s
     right: auto
 
+  &:hover
+    border-color: $gray
+    background-color: $gray-lighter
+
   &.active
-    border-color: $brand-success
-    background: $brand-success
+    border-color: $brand-success !important
+    background: $brand-success !important
 
     .round
       left: calc($h * 1.2 - $component-border-width - 3px)

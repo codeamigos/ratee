@@ -119,7 +119,7 @@ class Editor extends Component {
           defaultStyle={{opacity: 0}}
           style={{opacity: spring(1)}}>
           {({opacity}) =>
-          <div styleName="editor" style={{opacity: opacity, transform: `translate3d(0, ${-50 + 50 * opacity}px, 0)`}} >
+          <div style={{position: 'relative', opacity: opacity, transform: `translate3d(0, ${-50 + 50 * opacity}px, 0)`}} >
             <h5>
               <b>
                 <Icon icon="list" mr/>

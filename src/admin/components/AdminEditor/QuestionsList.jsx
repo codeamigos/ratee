@@ -1,10 +1,8 @@
 import React, { Component, PropTypes } from 'react';
-import css from 'react-css-modules';
 import { intlShape, injectIntl, defineMessages } from 'react-intl';
 
 import { Btn, Space } from 'ui';
 import Question from './Question';
-import styles from './AdminEditor.sass';
 
 const messages = defineMessages({
   title: {
@@ -42,7 +40,7 @@ class QuestionsList extends Component {
     const { questions, viewQuestionDetails, switchQuestionsIndex, addQuestion } = this.props;
 
     return (
-      <div styleName="questions">
+      <div style={{positon: 'relative'}}>
         <h1>
           {formatMessage(messages.title)}
         </h1>
@@ -67,4 +65,4 @@ class QuestionsList extends Component {
   }
 }
 
-export default injectIntl(css(QuestionsList, styles, {allowMultiple: true}));
+export default injectIntl(QuestionsList);

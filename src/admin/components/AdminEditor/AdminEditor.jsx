@@ -6,11 +6,13 @@ import { Card } from 'ui';
 
 import Editor from './Editor';
 import QuestionsList from './QuestionsList';
+import SuggestToSave from './SuggestToSave';
 
 class AdminEditor extends Component {
   state = {
     questions: questionsMok,
     editingQuestionId: null,
+    suggestToSave: false,
   }
 
   viewQuestionDetails = (id) => {
@@ -24,7 +26,10 @@ class AdminEditor extends Component {
       // mock
       questions.splice(currentPosition, 1);
       questions.splice(currentPosition, 0, object);
-      this.setState({questions: questions});
+      this.setState({
+        questions: questions,
+        suggestToSave: true,
+      });
     }
   }
 
@@ -43,6 +48,7 @@ class AdminEditor extends Component {
     this.setState({
       questions: questions,
       editingQuestionId: newId,
+      suggestToSave: true,
     });
   }
 
@@ -73,11 +79,14 @@ class AdminEditor extends Component {
     const indexAelem = questions.slice(indexA)[0];
     copyQuestions.splice(indexA, 1);
     copyQuestions.splice(indexB, 0, indexAelem);
-    this.setState({questions: copyQuestions});
+    this.setState({
+      questions: copyQuestions,
+      suggestToSave: true,
+    });
   }
 
   render() {
-    const { editingQuestionId } = this.state;
+    const { editingQuestionId, suggestToSave } = this.state;
     const questions = this.state.questions.map(q => {
       return (
       {
@@ -105,6 +114,7 @@ class AdminEditor extends Component {
             />
           </div>
         </Card>
+        <SuggestToSave visible={suggestToSave} onSave={() => this.setState({suggestToSave: false})}/>
       </content>
     );
   }

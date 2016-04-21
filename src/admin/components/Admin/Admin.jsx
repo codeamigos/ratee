@@ -1,7 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 import cookies from 'cookies-js';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 import Navbar from '../Navbar/Navbar';
+import styles from './Admin.sass';
 
 export default class Admin  extends Component {
 
@@ -19,6 +21,7 @@ export default class Admin  extends Component {
 
   static propTypes = {
     children: PropTypes.any.isRequired,
+    location: PropTypes.any.isRequired,
   }
 
   getChildContext() {
@@ -61,7 +64,16 @@ export default class Admin  extends Component {
       <div>
         <Navbar />
         <section>
-          {this.props.children}
+          <ReactCSSTransitionGroup
+            component="div"
+            transitionName={styles}
+            transitionEnterTimeout={500}
+            transitionLeaveTimeout={500}
+          >
+            {React.cloneElement(this.props.children, {
+              key: this.props.location.pathname,
+            })}
+        </ReactCSSTransitionGroup>
         </section>
       </div>
     );
