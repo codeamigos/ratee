@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import css from 'react-css-modules';
 import moment from 'moment';
+import { flatten } from 'lodash';
 
 import styles from './AdminStatistics.sass';
 import { Btn, Dropdown } from 'ui';
@@ -11,11 +12,14 @@ import Feedback from './Feedback';
 class AdminStatistics extends Component {
 
   state = {
+    feedbacks: feedbacksMok,
     dateFrom: moment().subtract(7, 'days'),
     dateTo: moment(),
   }
 
   render() {
+    console.log(prepareFeedbacks(this.state.feedbacks));
+
     return (
       <div>
         <Sidebar />
@@ -36,7 +40,21 @@ class AdminStatistics extends Component {
 }
 export default css(AdminStatistics, styles, {allowMultiple: true});
 
-const feedbackMok = [
+function prepareFeedbacks(feedbacks) {
+  let answers = [];
+  if (feedbacks && feedbacks.length > 1) {
+    answers = flatten(feedbacks.map(f =>
+      f.answers.map(a => ({
+        question: a.question.title,
+        answer: a.answer,
+      }))
+    ));
+  }
+  return answers;
+}
+
+
+const feedbacksMok = [
   {
     id: 'f1',
     customer: {

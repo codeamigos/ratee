@@ -3,3 +3,4 @@ node_modules
 elm-stuff
 *.log
 *.DS_Store
+translations
