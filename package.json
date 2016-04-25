@@ -33,6 +33,7 @@
     "cookies-js": "^1.2.2",
     "css-loader": "^0.23.1",
     "express": "^4.13.4",
+    "glob": "^7.0.3",
     "history": "^2.0.1",
     "jsonwebtoken": "^5.7.0",
     "lodash": "^4.11.1",

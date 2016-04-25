@@ -9,10 +9,7 @@ import Admin from './components/Admin/Admin';
 import AdminStatistics from './components/AdminStatistics/AdminStatistics';
 import AdminEditor from './components/AdminEditor/AdminEditor';
 
-const messages = {
-  'Sign in to your account': 'Войти в аккаунт',
-  'Your question...': 'Ваш вопрос...',
-};
+import messages from '../translation-ru';
 
 const mountNode = document.getElementById('root');
 ReactDOM.render(
