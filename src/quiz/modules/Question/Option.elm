@@ -29,15 +29,17 @@ init question =
 
 
 type Msg
-  = NoOp
-  | Submit ( String, String )
+  = Submit ( String, String )
+
+type Shout
+  = OnSubmit ( String, String )
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, List Shout )
 update msg model =
   case msg of
-    _ ->
-      model
+    Submit answer ->
+      ( model, [ OnSubmit answer ] )
 
 
 
