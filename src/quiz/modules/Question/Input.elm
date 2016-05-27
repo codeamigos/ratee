@@ -30,7 +30,6 @@ decoder =
 type Msg
   = Input String
   | Submit
-  | NoOp
 
 
 type Shout
@@ -39,17 +38,12 @@ type Shout
 
 update : Msg -> Model -> ( Model, List Shout )
 update msg model =
-  case (Debug.log "Message" msg) of
+  case msg of
     Input str ->
       ( { model | input = str }, [] )
 
     Submit ->
-      ( Debug.log "Submit" model, [] )--[ OnSubmit ( model.question.title, model.input ) ] )
-
-    NoOp ->
-      ( Debug.log "NoOp" model, [] )
-
-
+      ( model, [ OnSubmit ( model.question.title, model.input ) ] )
 
 
 view : Bool -> Model -> Html Msg
@@ -59,6 +53,6 @@ view isHidden model =
     [ h2 [] [ text model.question.title ]
     , textarea [ onInput Input, value model.input ] []
     , button
-      []--[ onClick Submit ]
+      [ onClick Submit ]
       [ text "Submit" ]
     ]
