@@ -24,13 +24,16 @@ var MODULE_DERICTORIES = ['node_modules', 'lib'];
 module.exports = {
   devtool: '#inline-source-map',
   entry: {
-    quiz: path.join(__dirname, 'src', 'quiz'),
+    quiz: [
+      'webpack-dev-server/client?http://localhost:3000',
+      'webpack/hot/only-dev-server',
+      path.join(__dirname, 'src', 'quiz')
+    ],
     admin: [
       'webpack-dev-server/client?http://localhost:3000',
       'webpack/hot/only-dev-server',
       path.join(__dirname, 'src', 'admin')
     ],
-    quiz: path.join(__dirname, 'src', 'quiz')
   },
   output: {
     path: path.join(__dirname, '.public'),
@@ -54,7 +57,7 @@ module.exports = {
       },
       {
         test: /\.elm$/,
-        loaders: ['elm-webpack?pathToMake=node_modules/.bin/elm-make']
+        loaders: ['elm-hot', 'elm-webpack?pathToMake=node_modules/.bin/elm-make']
       },
       {
        test:   /\.sass$/,
