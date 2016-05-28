@@ -20,6 +20,7 @@ router.get('/api/feedback', (req, res, next) => {
 });
 
 router.post('/api/feedback', (req, res, next) => {
+  console.log(req.body);
   Feedback.create(req.body, (err, feedback) => {
     if (err) {
       return next(err);

@@ -1,9 +1,11 @@
 module Quiz exposing (..)
 
 import Html exposing (..)
+import Html.Events exposing (..)
 import Html.App
 import Http
 import Json.Decode as Decode exposing (Decoder, (:=))
+import Json.Encode as Encode exposing (Value)
 import Task
 
 import Question
@@ -13,53 +15,96 @@ import Question
 
 
 type alias Model =
-  { questions : List Question.Model
+  { quiz : Maybe Quiz
+  , questions : List Question.Model
   , visibleQuestion : Int
   , feedback : List (String, String)
   }
 
 
 type alias Quiz =
-  { title : String
+  { id : String
+  , title : String
   , questions : List Question.Question
   }
 
 
 init : ( Model, Cmd Msg )
 init =
-  ( Model [] 0 []
+  ( Model Nothing [] 0 []
   , Http.get decoder "/api/quiz/perchini"
       |> Task.perform FetchFail FetchOk
   )
 
 decoder : Decoder Quiz
 decoder =
-  Decode.object2 Quiz
+  Decode.object3 Quiz
+    ("_id" := Decode.string)
     ("title" := Decode.string)
     ("questions" := (Decode.list Question.decoder))
+
+encoder : String -> List ( String, String ) -> String
+encoder quizId feedback =
+  Encode.encode 0
+    <| Encode.object
+      [ ("quiz", Encode.string quizId )
+      , ("answers"
+        , Encode.list
+            <| List.map
+                (\answer -> Encode.object
+                  [ ("question", Encode.string (fst answer))
+                  , ("result", Encode.string (snd answer))
+                  ]
+                )
+                feedback
+        )
+      ]
 
 
 ---- UPDATE ----
 
 
 type Msg
-  = FetchOk Quiz
+  = NoOp
+  | FetchOk Quiz
   | FetchFail Http.Error
+  | SubmitFeedback
   | QuestionMsg Int Question.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
+    NoOp ->
+      ( model, Cmd.none )
+
     FetchOk quiz ->
       let
         questions =
           List.map Question.init quiz.questions
       in
-        ( { model | questions = questions }, Cmd.none )
+        ( { model | quiz = Just quiz, questions = questions }, Cmd.none )
 
-    FetchFail _ ->
+    FetchFail error ->
       ( model, Cmd.none )
+
+    SubmitFeedback ->
+      case model.quiz of
+        Just quiz ->
+          ( model
+          , Http.send
+              Http.defaultSettings
+              { verb = "post"
+              , headers =
+                  [ ("Content-Type", "application/json")
+                  ]
+              , url = "/api/feedback"
+              , body = Http.string (encoder quiz.id model.feedback)
+              }
+                |> Task.perform (always NoOp) (always NoOp)
+          )
+        Nothing ->
+          ( model, Cmd.none )
 
     QuestionMsg id childMsg ->
       let
@@ -103,12 +148,17 @@ handleQuestionShout shout ( model, cmd ) =
 
 view : Model -> Html Msg
 view model =
-  div []
-    [ h1 [] [ text "Quiz" ]
-    , div [] (List.indexedMap (questionView model.visibleQuestion) model.questions)
-    , h1 [] [ text "Feedback" ]
-    , ul [] (List.map feedbackView model.feedback)
-    ]
+  let
+    isQuizCompeted =
+      List.length model.questions == model.visibleQuestion
+  in
+    if isQuizCompeted then
+      button [ onClick SubmitFeedback ] [ text "Submit results" ]
+    else
+      div []
+        [ h1 [] [ text "Quiz" ]
+        , div [] (List.indexedMap (questionView model.visibleQuestion) model.questions)
+        ]
 
 questionView : Int -> Int -> Question.Model -> Html Msg
 questionView visibleIndex index question =
@@ -116,7 +166,3 @@ questionView visibleIndex index question =
     isHidden = visibleIndex /= index
   in
     Question.view isHidden question |> Html.App.map (QuestionMsg index)
-
-feedbackView : ( String, String ) -> Html msg
-feedbackView ( question, answer ) =
-  li [] [ text (question ++ " " ++ answer) ]
