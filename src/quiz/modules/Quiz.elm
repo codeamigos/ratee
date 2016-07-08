@@ -18,6 +18,7 @@ type alias Model =
     , questions : List Question.Model
     , visibleQuestion : Int
     , feedback : List ( String, String )
+    , finished : Bool
     }
 
 
@@ -30,7 +31,7 @@ type alias Quiz =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model Nothing [] 0 []
+    ( Model Nothing [] 0 [] False
     , Http.get decoder "/api/quiz/perchini"
         |> Task.perform FetchFail FetchOk
     )
@@ -94,7 +95,7 @@ update msg model =
         SubmitFeedback ->
             case model.quiz of
                 Just quiz ->
-                    ( model
+                    ( { model | finished = True }
                     , Http.send Http.defaultSettings
                         { verb = "post"
                         , headers =
@@ -123,15 +124,9 @@ update msg model =
 
                 shouts =
                     List.concat nestedShouts
-
-                visibleQuestion =
-                    if List.isEmpty shouts then
-                        model.visibleQuestion
-                    else
-                        model.visibleQuestion + 1
             in
                 List.foldl handleQuestionShout
-                    ( { model | questions = updatedQuestions, visibleQuestion = visibleQuestion }
+                    ( { model | questions = updatedQuestions }
                     , Cmd.none
                     )
                     shouts
@@ -141,7 +136,10 @@ handleQuestionShout : Question.Shout -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 handleQuestionShout shout ( model, cmd ) =
     case shout of
         Question.OnSubmit answer ->
-            ( { model | feedback = model.feedback ++ [ answer ] }
+            ( { model
+                | feedback = model.feedback ++ [ answer ]
+                , visibleQuestion = model.visibleQuestion + 1
+              }
             , cmd
             )
 
