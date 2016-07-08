@@ -7,52 +7,53 @@ import Json.Decode as Decode exposing (Decoder, (:=))
 
 
 type alias Model =
-  { question : Question
-  , input : String
-  }
+    { question : Question
+    , input : String
+    }
+
 
 type alias Question =
-  { title : String
-  }
+    { title : String
+    }
+
 
 init : Question -> Model
 init question =
-  { question = question
-  , input = ""
-  }
+    { question = question
+    , input = ""
+    }
+
 
 decoder : Decoder Question
 decoder =
-  Decode.object1 Question
-    ("title" := Decode.string)
+    Decode.object1 Question
+        ("title" := Decode.string)
 
 
 type Msg
-  = Input String
-  | Submit
+    = Input String
+    | Submit
 
 
 type Shout
-  = OnSubmit ( String, String )
+    = OnSubmit ( String, String )
 
 
 update : Msg -> Model -> ( Model, List Shout )
 update msg model =
-  case msg of
-    Input str ->
-      ( { model | input = str }, [] )
+    case msg of
+        Input str ->
+            ( { model | input = str }, [] )
 
-    Submit ->
-      ( model, [ OnSubmit ( model.question.title, model.input ) ] )
+        Submit ->
+            ( model, [ OnSubmit ( model.question.title, model.input ) ] )
 
 
 view : Bool -> Model -> Html Msg
 view isHidden model =
-  div
-    [ hidden isHidden ]
-    [ h2 [] [ text model.question.title ]
-    , textarea [ onInput Input, value model.input ] []
-    , button
-      [ onClick Submit ]
-      [ text "Submit" ]
-    ]
+    div [ hidden isHidden ]
+        [ h2 [] [ text model.question.title ]
+        , textarea [ onInput Input, value model.input ] []
+        , button [ onClick Submit ]
+            [ text "Submit" ]
+        ]
