@@ -1,7 +1,6 @@
 module Quiz exposing (..)
 
 import Html exposing (..)
-import Html.Events exposing (..)
 import Html.App
 import Http
 import Json.Decode as Decode exposing (Decoder, (:=))
@@ -72,7 +71,6 @@ type Msg
     = NoOp
     | FetchOk Quiz
     | FetchFail Http.Error
-    | SubmitFeedback
     | QuestionMsg Int Question.Msg
 
 
@@ -91,24 +89,6 @@ update msg model =
 
         FetchFail error ->
             ( model, Cmd.none )
-
-        SubmitFeedback ->
-            case model.quiz of
-                Just quiz ->
-                    ( { model | finished = True }
-                    , Http.send Http.defaultSettings
-                        { verb = "post"
-                        , headers =
-                            [ ( "Content-Type", "application/json" )
-                            ]
-                        , url = "/api/feedback"
-                        , body = Http.string (encoder quiz.id model.feedback)
-                        }
-                        |> Task.perform (always NoOp) (always NoOp)
-                    )
-
-                Nothing ->
-                    ( model, Cmd.none )
 
         QuestionMsg id childMsg ->
             let
@@ -136,12 +116,37 @@ handleQuestionShout : Question.Shout -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
 handleQuestionShout shout ( model, cmd ) =
     case shout of
         Question.OnSubmit answer ->
-            ( { model
-                | feedback = model.feedback ++ [ answer ]
-                , visibleQuestion = model.visibleQuestion + 1
-              }
-            , cmd
-            )
+            let
+                nextVisibleQuestion =
+                    model.visibleQuestion + 1
+
+                shouldSendToServer =
+                    -- Remember that we are indexing from 0, that's why we use (==)
+                    nextVisibleQuestion == List.length model.questions
+
+                sendToServerCmd =
+                    case ( model.quiz, shouldSendToServer ) of
+                        ( Just quiz, True ) ->
+                            Http.send Http.defaultSettings
+                                { verb = "post"
+                                , headers =
+                                    [ ( "Content-Type", "application/json" )
+                                    ]
+                                , url = "/api/feedback"
+                                , body = Http.string (encoder quiz.id model.feedback)
+                                }
+                                |> Task.perform (always NoOp) (always NoOp)
+
+                        _ ->
+                            Cmd.none
+            in
+                ( { model
+                    | feedback = model.feedback ++ [ answer ]
+                    , visibleQuestion = model.visibleQuestion + 1
+                    , finished = shouldSendToServer
+                  }
+                , Cmd.batch [ cmd, sendToServerCmd ]
+                )
 
 
 
@@ -154,8 +159,8 @@ view model =
         isQuizCompeted =
             List.length model.questions == model.visibleQuestion
     in
-        if isQuizCompeted then
-            button [ onClick SubmitFeedback ] [ text "Submit results" ]
+        if model.finished then
+            h1 [] [ text "Благодарим вас за участие в опросе" ]
         else
             div []
                 [ h1 [] [ text "Quiz" ]
