@@ -1,12 +1,12 @@
 module Quiz exposing (..)
 
-import Html exposing (..)
-import Html.App
+import Html exposing (Html, div, h1, h2, text, textarea, button)
+import Html.Attributes exposing (value, hidden)
+import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as Decode exposing (Decoder, (:=))
 import Json.Encode as Encode exposing (Value)
 import Task
-import Question
 
 
 ---- MODEL ----
@@ -14,48 +14,126 @@ import Question
 
 type alias Model =
     { quiz : Maybe Quiz
-    , questions : List Question.Model
-    , visibleQuestion : Int
     , feedback : List ( String, String )
-    , finished : Bool
+    , isQuizCompleted : Bool
+    , forms : List AnswerForm
+    , visibleForm : Int
     }
 
 
 type alias Quiz =
     { id : String
     , title : String
-    , questions : List Question.Question
+    , questions : List Question
+    }
+
+
+type Question
+    = InputQuestionT InputQuestion
+    | OptionQuestionT OptionQuestion
+
+
+type alias InputQuestion =
+    { title : String
+    }
+
+
+type alias OptionQuestion =
+    { title : String
+    , options : List String
+    }
+
+
+type AnswerForm
+    = InputForm InputAnswerForm
+    | OptionForm OptionAnswerForm
+
+
+type alias InputAnswerForm =
+    { question : InputQuestion
+    , answer : String
+    }
+
+
+type alias OptionAnswerForm =
+    { question : OptionQuestion
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model Nothing [] 0 [] False
-    , Http.get decoder "/api/quiz/perchini"
-        |> Task.perform FetchFail FetchOk
+    ( { quiz = Nothing
+      , feedback = []
+      , isQuizCompleted = False
+      , forms = []
+      , visibleForm = 0
+      }
+    , getQuiz
     )
 
 
-decoder : Decoder Quiz
-decoder =
+isQuizCompleted : Model -> Bool
+isQuizCompleted model =
+    model.quiz
+        |> Maybe.map .questions
+        |> Maybe.map List.length
+        |> Maybe.map ((>=) model.visibleForm)
+        |> Maybe.withDefault False
+
+
+
+---- JSON ----
+
+
+decodeQuiz : Decoder Quiz
+decodeQuiz =
     Decode.object3 Quiz
         ("_id" := Decode.string)
         ("title" := Decode.string)
-        ("questions" := (Decode.list Question.decoder))
+        ("questions" := (Decode.list decodeQuestion))
 
 
-encoder : String -> List ( String, String ) -> String
-encoder quizId feedback =
+decodeQuestion : Decoder Question
+decodeQuestion =
+    Decode.andThen ("kind" := Decode.string)
+        (\kind ->
+            case kind of
+                "singular" ->
+                    Decode.map OptionQuestionT decodeOptionQuestion
+
+                "input" ->
+                    Decode.map InputQuestionT decodeInputQuestion
+
+                _ ->
+                    Decode.fail "unsupported kind of Question"
+        )
+
+
+decodeInputQuestion : Decoder InputQuestion
+decodeInputQuestion =
+    Decode.object1 InputQuestion
+        ("title" := Decode.string)
+
+
+decodeOptionQuestion : Decoder OptionQuestion
+decodeOptionQuestion =
+    Decode.object2 OptionQuestion
+        ("title" := Decode.string)
+        ("options" := Decode.list Decode.string)
+
+
+encodeFeedback : String -> List ( String, String ) -> String
+encodeFeedback quizId feedback =
     Encode.encode 0 <|
         Encode.object
             [ ( "quiz", Encode.string quizId )
             , ( "answers"
               , Encode.list <|
                     List.map
-                        (\answer ->
+                        (\( question, result ) ->
                             Encode.object
-                                [ ( "question", Encode.string (fst answer) )
-                                , ( "result", Encode.string (snd answer) )
+                                [ ( "question", Encode.string question )
+                                , ( "result", Encode.string result )
                                 ]
                         )
                         feedback
@@ -64,14 +142,39 @@ encoder quizId feedback =
 
 
 
+---- HTTP ----
+
+
+getQuiz : Cmd Msg
+getQuiz =
+    Http.get decodeQuiz "/api/quiz/perchini"
+        |> Task.perform QuizFetchFail QuizFetchOk
+
+
+postFeedback : String -> List ( String, String ) -> Cmd Msg
+postFeedback quizId feedback =
+    Http.send
+        Http.defaultSettings
+        { verb = "post"
+        , headers =
+            [ ( "Content-Type", "application/json" )
+            ]
+        , url = "/api/feedback"
+        , body = Http.string (encodeFeedback quizId feedback)
+        }
+        |> Task.perform (\_ -> NoOp) (\_ -> NoOp)
+
+
+
 ---- UPDATE ----
 
 
 type Msg
     = NoOp
-    | FetchOk Quiz
-    | FetchFail Http.Error
-    | QuestionMsg Int Question.Msg
+    | QuizFetchOk Quiz
+    | QuizFetchFail Http.Error
+    | Input Int String
+    | SubmitAnswer ( String, String )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -80,73 +183,74 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        FetchOk quiz ->
-            let
-                questions =
-                    List.map Question.init quiz.questions
-            in
-                ( { model | quiz = Just quiz, questions = questions }, Cmd.none )
+        QuizFetchOk quiz ->
+            ( { model
+                | quiz = Just quiz
+                , forms = List.map questionToAnswerForm quiz.questions
+              }
+            , Cmd.none
+            )
 
-        FetchFail error ->
-            ( model, Cmd.none )
+        QuizFetchFail error ->
+            ( model
+            , Cmd.none
+            )
 
-        QuestionMsg id childMsg ->
-            let
-                updateAtIndex index childModel =
-                    if id == index then
-                        Question.update childMsg childModel
-                    else
-                        ( childModel, [] )
+        Input index string ->
+            ( { model
+                | forms =
+                    List.indexedMap
+                        (updateForm index string)
+                        model.forms
+              }
+            , Cmd.none
+            )
 
-                ( updatedQuestions, nestedShouts ) =
-                    List.indexedMap updateAtIndex model.questions
-                        |> List.unzip
+        SubmitAnswer answer ->
+            case model.quiz of
+                Just quiz ->
+                    let
+                        nextVisibleForm =
+                            model.visibleForm + 1
 
-                shouts =
-                    List.concat nestedShouts
-            in
-                List.foldl handleQuestionShout
-                    ( { model | questions = updatedQuestions }
-                    , Cmd.none
-                    )
-                    shouts
-
-
-handleQuestionShout : Question.Shout -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
-handleQuestionShout shout ( model, cmd ) =
-    case shout of
-        Question.OnSubmit answer ->
-            let
-                nextVisibleQuestion =
-                    model.visibleQuestion + 1
-
-                shouldSendToServer =
-                    -- Remember that we are indexing from 0, that's why we use (==)
-                    nextVisibleQuestion == List.length model.questions
-
-                sendToServerCmd =
-                    case ( model.quiz, shouldSendToServer ) of
-                        ( Just quiz, True ) ->
-                            Http.send Http.defaultSettings
-                                { verb = "post"
-                                , headers =
-                                    [ ( "Content-Type", "application/json" )
-                                    ]
-                                , url = "/api/feedback"
-                                , body = Http.string (encoder quiz.id model.feedback)
-                                }
-                                |> Task.perform (always NoOp) (always NoOp)
-
-                        _ ->
+                        nextModel =
+                            { model
+                                | feedback = model.feedback ++ [ answer ]
+                                , visibleForm = nextVisibleForm
+                            }
+                    in
+                        ( nextModel
+                        , if isQuizCompleted nextModel then
+                            postFeedback quiz.id nextModel.feedback
+                          else
                             Cmd.none
-            in
-                ( { model
-                    | feedback = model.feedback ++ [ answer ]
-                    , visibleQuestion = model.visibleQuestion + 1
-                    , finished = shouldSendToServer
-                  }
-                , Cmd.batch [ cmd, sendToServerCmd ]
-                )
+                        )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+
+questionToAnswerForm : Question -> AnswerForm
+questionToAnswerForm question =
+    case question of
+        InputQuestionT quest ->
+            InputForm { question = quest, answer = "" }
+
+        OptionQuestionT quest ->
+            OptionForm { question = quest }
+
+
+updateForm : Int -> String -> Int -> AnswerForm -> AnswerForm
+updateForm updateIndex string index form =
+    if updateIndex /= index then
+        form
+    else
+        case form of
+            InputForm f ->
+                InputForm { f | answer = string }
+
+            OptionForm f ->
+                OptionForm f
 
 
 
@@ -155,23 +259,50 @@ handleQuestionShout shout ( model, cmd ) =
 
 view : Model -> Html Msg
 view model =
-    let
-        isQuizCompeted =
-            List.length model.questions == model.visibleQuestion
-    in
-        if model.finished then
-            h1 [] [ text "Благодарим вас за участие в опросе" ]
-        else
-            div []
-                [ h1 [] [ text "Quiz" ]
-                , div [] (List.indexedMap (questionView model.visibleQuestion) model.questions)
-                ]
+    if isQuizCompleted model then
+        h1 [] [ text "Благодарим вас за участие в опросе" ]
+    else
+        div []
+            [ h1 [] [ text "Quiz" ]
+            , model.forms
+                |> List.indexedMap (formView model.visibleForm)
+                |> div []
+            ]
 
 
-questionView : Int -> Int -> Question.Model -> Html Msg
-questionView visibleIndex index question =
+formView : Int -> Int -> AnswerForm -> Html Msg
+formView visibleIndex index form =
     let
         isHidden =
             visibleIndex /= index
     in
-        Question.view isHidden question |> Html.App.map (QuestionMsg index)
+        case form of
+            InputForm inputForm ->
+                inputFormView index isHidden inputForm
+
+            OptionForm optionForm ->
+                optionFormView isHidden optionForm
+
+
+inputFormView : Int -> Bool -> InputAnswerForm -> Html Msg
+inputFormView index isHidden form =
+    div [ hidden isHidden ]
+        [ h2 [] [ text form.question.title ]
+        , textarea [ onInput (Input index), value form.answer ] []
+        , button [ onClick <| SubmitAnswer ( form.question.title, form.answer ) ]
+            [ text "Submit" ]
+        ]
+
+
+optionFormView : Bool -> OptionAnswerForm -> Html Msg
+optionFormView isHidden { question } =
+    let
+        optionView option =
+            button [ onClick <| SubmitAnswer ( question.title, option ) ]
+                [ text option ]
+    in
+        div [ hidden isHidden ]
+            [ h2 [] [ text question.title ]
+            , div []
+                (List.map optionView question.options)
+            ]
