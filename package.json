@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "test": "NODE_ENV=test MONGODB_URI=mongodb://localhost/test mocha --compilers js:babel-register $(find ./src -name '*.spec.js')",
-    "dev": "node dev.js",
+    "dev": "rm -rf elm-stuff/build-artifacts && node dev.js",
     "lint": "./node_modules/.bin/eslint ./src/; exit 0"
   },
   "repository": {
@@ -32,6 +32,8 @@
     "classnames": "^2.2.3",
     "cookies-js": "^1.2.2",
     "css-loader": "^0.23.1",
+    "elm": "^0.17.1",
+    "elm-webpack-loader": "^3.0.1",
     "express": "^4.13.4",
     "history": "^2.0.1",
     "jsonwebtoken": "^5.7.0",
@@ -65,6 +67,7 @@
   "devDependencies": {
     "babel-eslint": "^6.0.2",
     "babel-plugin-react-intl": "^2.1.1",
+    "elm-hot-loader": "^0.3.3",
     "eslint": "^2.6.0",
     "eslint-cli": "^1.1.0",
     "eslint-plugin-react": "^4.2.3",
