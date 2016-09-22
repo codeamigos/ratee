@@ -33,7 +33,7 @@
     "cookies-js": "^1.2.2",
     "css-loader": "^0.23.1",
     "elm": "^0.17.1",
-    "elm-webpack-loader": "^3.0.1",
+    "elm-webpack-loader": "^3.0.6",
     "express": "^4.13.4",
     "history": "^2.0.1",
     "jsonwebtoken": "^5.7.0",
