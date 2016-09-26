@@ -11,7 +11,6 @@ router.get('/setup', (req, res) => {
 });
 
 router.get('/admin*', (req, res) => {
-router.get('/admin', (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html>
