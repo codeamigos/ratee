@@ -7,6 +7,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder, (:=))
 import Json.Encode as Encode exposing (Value)
 import Task
+import ZipList
 
 
 ---- MODEL ----
@@ -14,71 +15,39 @@ import Task
 
 type alias Model =
     { quiz : Maybe Quiz
-    , feedback : List ( String, String )
-    , isQuizCompleted : Bool
-    , forms : List AnswerForm
-    , visibleForm : Int
     }
 
 
 type alias Quiz =
     { id : String
     , title : String
-    , questions : List Question
+    , questions : ZipList.ZipList Question
     }
 
 
 type Question
-    = InputQuestionT InputQuestion
-    | OptionQuestionT OptionQuestion
+    = TQuestionInput QuestionInput
+    | TQuestionOption QuestionOption
 
 
-type alias InputQuestion =
+type alias QuestionInput =
     { title : String
-    }
-
-
-type alias OptionQuestion =
-    { title : String
-    , options : List String
-    }
-
-
-type AnswerForm
-    = InputForm InputAnswerForm
-    | OptionForm OptionAnswerForm
-
-
-type alias InputAnswerForm =
-    { question : InputQuestion
     , answer : String
     }
 
 
-type alias OptionAnswerForm =
-    { question : OptionQuestion
+type alias QuestionOption =
+    { title : String
+    , options : List String
+    , answer : String
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { quiz = Nothing
-      , feedback = []
-      , isQuizCompleted = False
-      , forms = []
-      , visibleForm = 0
-      }
+    ( { quiz = Nothing }
     , getQuiz
     )
-
-
-isQuizCompleted : Model -> Bool
-isQuizCompleted model =
-    model.quiz
-        |> Maybe.map .questions
-        |> Maybe.map List.length
-        |> Maybe.map ((>=) model.visibleForm)
-        |> Maybe.withDefault False
 
 
 
@@ -90,7 +59,7 @@ decodeQuiz =
     Decode.object3 Quiz
         ("_id" := Decode.string)
         ("title" := Decode.string)
-        ("questions" := (Decode.list decodeQuestion))
+        ("questions" := (ZipList.decoder decodeQuestion))
 
 
 decodeQuestion : Decoder Question
@@ -99,44 +68,55 @@ decodeQuestion =
         (\kind ->
             case kind of
                 "singular" ->
-                    Decode.map OptionQuestionT decodeOptionQuestion
+                    Decode.map TQuestionOption decodeOptionQuestion
 
                 "input" ->
-                    Decode.map InputQuestionT decodeInputQuestion
+                    Decode.map TQuestionInput decodeInputQuestion
 
                 _ ->
                     Decode.fail "unsupported kind of Question"
         )
 
 
-decodeInputQuestion : Decoder InputQuestion
+decodeInputQuestion : Decoder QuestionInput
 decodeInputQuestion =
-    Decode.object1 InputQuestion
+    Decode.object2 QuestionInput
         ("title" := Decode.string)
+        (Decode.succeed "")
 
 
-decodeOptionQuestion : Decoder OptionQuestion
+decodeOptionQuestion : Decoder QuestionOption
 decodeOptionQuestion =
-    Decode.object2 OptionQuestion
+    Decode.object3 QuestionOption
         ("title" := Decode.string)
         ("options" := Decode.list Decode.string)
+        (Decode.succeed "")
 
 
-encodeFeedback : String -> List ( String, String ) -> String
-encodeFeedback quizId feedback =
+encodeFeedback : Quiz -> String
+encodeFeedback quiz =
     Encode.encode 0 <|
         Encode.object
-            [ ( "quiz", Encode.string quizId )
+            [ ( "quiz", Encode.string quiz.id )
             , ( "answers"
-              , Encode.list <|
-                    List.map
-                        (\( question, result ) ->
-                            Encode.object
-                                [ ( "question", Encode.string question )
-                                , ( "result", Encode.string result )
-                                ]
+              , quiz.questions
+                    |> ZipList.toList
+                    |> List.map
+                        (\question ->
+                            case question of
+                                TQuestionInput { title, answer } ->
+                                    Encode.object
+                                        [ ( "question", Encode.string title )
+                                        , ( "result", Encode.string answer )
+                                        ]
+
+                                TQuestionOption { title, answer } ->
+                                    Encode.object
+                                        [ ( "question", Encode.string title )
+                                        , ( "result", Encode.string answer )
+                                        ]
                         )
-                        feedback
+                    |> Encode.list
               )
             ]
 
@@ -151,8 +131,8 @@ getQuiz =
         |> Task.perform QuizFetchFail QuizFetchOk
 
 
-postFeedback : String -> List ( String, String ) -> Cmd Msg
-postFeedback quizId feedback =
+postFeedback : Quiz -> Cmd Msg
+postFeedback quiz =
     Http.send
         Http.defaultSettings
         { verb = "post"
@@ -160,7 +140,10 @@ postFeedback quizId feedback =
             [ ( "Content-Type", "application/json" )
             ]
         , url = "/api/feedback"
-        , body = Http.string (encodeFeedback quizId feedback)
+        , body =
+            quiz
+                |> encodeFeedback
+                |> Http.string
         }
         |> Task.perform (\_ -> NoOp) (\_ -> NoOp)
 
@@ -173,8 +156,9 @@ type Msg
     = NoOp
     | QuizFetchOk Quiz
     | QuizFetchFail Http.Error
-    | Input Int String
-    | SubmitAnswer ( String, String )
+    | OptionAnswer String
+    | InputAnswer String
+    | NextQuestion
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -184,10 +168,7 @@ update msg model =
             ( model, Cmd.none )
 
         QuizFetchOk quiz ->
-            ( { model
-                | quiz = Just quiz
-                , forms = List.map questionToAnswerForm quiz.questions
-              }
+            ( { model | quiz = Just quiz }
             , Cmd.none
             )
 
@@ -196,61 +177,59 @@ update msg model =
             , Cmd.none
             )
 
-        Input index string ->
-            ( { model
-                | forms =
-                    List.indexedMap
-                        (updateForm index string)
-                        model.forms
-              }
-            , Cmd.none
-            )
+        OptionAnswer str ->
+            case model.quiz of
+                Just quiz ->
+                    ( { model | quiz = Just <| recordAnswer str quiz }
+                    , Task.succeed ()
+                        |> Task.perform (always NoOp) (always NextQuestion)
+                    )
 
-        SubmitAnswer answer ->
+                Nothing ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        InputAnswer str ->
+            case model.quiz of
+                Just quiz ->
+                    ( { model | quiz = Just <| recordAnswer str quiz }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        NextQuestion ->
             case model.quiz of
                 Just quiz ->
                     let
-                        nextVisibleForm =
-                            model.visibleForm + 1
-
-                        nextModel =
-                            { model
-                                | feedback = model.feedback ++ [ answer ]
-                                , visibleForm = nextVisibleForm
-                            }
+                        updatedQuiz =
+                            { quiz | questions = ZipList.next quiz.questions }
                     in
-                        ( nextModel
-                        , if isQuizCompleted nextModel then
-                            postFeedback quiz.id nextModel.feedback
-                          else
-                            Cmd.none
+                        ( { model | quiz = Just updatedQuiz }
+                        , Cmd.none
                         )
 
                 Nothing ->
                     ( model, Cmd.none )
 
 
-questionToAnswerForm : Question -> AnswerForm
-questionToAnswerForm question =
-    case question of
-        InputQuestionT quest ->
-            InputForm { question = quest, answer = "" }
+recordAnswer : String -> Quiz -> Quiz
+recordAnswer answer quiz =
+    { quiz
+        | questions =
+            ZipList.updateCurrent
+                (\question ->
+                    case question of
+                        TQuestionInput question' ->
+                            TQuestionInput { question' | answer = answer }
 
-        OptionQuestionT quest ->
-            OptionForm { question = quest }
-
-
-updateForm : Int -> String -> Int -> AnswerForm -> AnswerForm
-updateForm updateIndex string index form =
-    if updateIndex /= index then
-        form
-    else
-        case form of
-            InputForm f ->
-                InputForm { f | answer = string }
-
-            OptionForm f ->
-                OptionForm f
+                        TQuestionOption question' ->
+                            TQuestionOption { question' | answer = answer }
+                )
+                quiz.questions
+    }
 
 
 
@@ -259,49 +238,45 @@ updateForm updateIndex string index form =
 
 view : Model -> Html Msg
 view model =
-    if isQuizCompleted model then
-        h1 [] [ text "Благодарим вас за участие в опросе" ]
-    else
-        div []
-            [ h1 [] [ text "Quiz" ]
-            , model.forms
-                |> List.indexedMap (formView model.visibleForm)
-                |> div []
-            ]
+    case model.quiz of
+        Just quiz ->
+            div []
+                [ h1 [] [ text "Quiz" ]
+                , quiz.questions
+                    |> ZipList.current
+                    |> questionView
+                ]
+
+        Nothing ->
+            text "Loading..."
 
 
-formView : Int -> Int -> AnswerForm -> Html Msg
-formView visibleIndex index form =
-    let
-        isHidden =
-            visibleIndex /= index
-    in
-        case form of
-            InputForm inputForm ->
-                inputFormView index isHidden inputForm
+questionView : Question -> Html Msg
+questionView question =
+    case question of
+        TQuestionInput question' ->
+            inputQuestionView question'
 
-            OptionForm optionForm ->
-                optionFormView isHidden optionForm
+        TQuestionOption question' ->
+            optionQuestionView question'
 
 
-inputFormView : Int -> Bool -> InputAnswerForm -> Html Msg
-inputFormView index isHidden form =
-    div [ hidden isHidden ]
-        [ h2 [] [ text form.question.title ]
-        , textarea [ onInput (Input index), value form.answer ] []
-        , button [ onClick <| SubmitAnswer ( form.question.title, form.answer ) ]
-            [ text "Submit" ]
+inputQuestionView : QuestionInput -> Html Msg
+inputQuestionView question =
+    div [ hidden False ]
+        [ h2 [] [ text question.title ]
+        , textarea [ onInput InputAnswer ] []
+        , button [ onClick NextQuestion ] [ text "Next" ]
         ]
 
 
-optionFormView : Bool -> OptionAnswerForm -> Html Msg
-optionFormView isHidden { question } =
+optionQuestionView : QuestionOption -> Html Msg
+optionQuestionView question =
     let
         optionView option =
-            button [ onClick <| SubmitAnswer ( question.title, option ) ]
-                [ text option ]
+            button [ onClick (OptionAnswer option) ] [ text option ]
     in
-        div [ hidden isHidden ]
+        div [ hidden False ]
             [ h2 [] [ text question.title ]
             , div []
                 (List.map optionView question.options)
