@@ -73,7 +73,7 @@ decodeQuiz =
                 (\list ->
                     case list of
                         [] ->
-                            Decode.fail "Cannot decode empty list into ZipList"
+                            Decode.fail "Cannot decode empty list into QuestionsList"
 
                         x :: xs ->
                             Decode.succeed (QuestionsList [] x xs)
@@ -93,7 +93,7 @@ decodeQuestion =
                     Decode.map TQuestionInput decodeInputQuestion
 
                 _ ->
-                    Decode.fail "unsupported kind of Question"
+                    Decode.fail "Unsupported kind of Question"
         )
 
 
