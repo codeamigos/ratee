@@ -14,6 +14,7 @@ import Task
 
 type alias Model =
     { quiz : Maybe Quiz
+    , isFinished : Bool
     }
 
 
@@ -51,22 +52,11 @@ type alias QuestionOption =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { quiz = Nothing }
+    ( { quiz = Nothing
+      , isFinished = False
+      }
     , getQuiz
     )
-
-
-nextQuestion : QuestionsList -> QuestionsList
-nextQuestion list =
-    case list.next of
-        [] ->
-            list
-
-        x :: xs ->
-            { prev = list.prev ++ [ list.current ]
-            , current = x
-            , next = xs
-            }
 
 
 
@@ -234,11 +224,23 @@ update msg model =
             case model.quiz of
                 Just quiz ->
                     let
+                        updatedQuestions =
+                            nextQuestion quiz.questions
+
                         updatedQuiz =
-                            { quiz | questions = nextQuestion quiz.questions }
+                            { quiz | questions = updatedQuestions }
+
+                        isFinished =
+                            quiz.questions == updatedQuestions
                     in
-                        ( { model | quiz = Just updatedQuiz }
-                        , Cmd.none
+                        ( { model
+                            | quiz = Just updatedQuiz
+                            , isFinished = isFinished
+                          }
+                        , if isFinished then
+                            postFeedback quiz
+                          else
+                            Cmd.none
                         )
 
                 Nothing ->
@@ -265,6 +267,19 @@ answerCurrentQuestion answer quiz =
         { quiz | questions = updatedQuestions }
 
 
+nextQuestion : QuestionsList -> QuestionsList
+nextQuestion list =
+    case list.next of
+        [] ->
+            list
+
+        x :: xs ->
+            { prev = list.prev ++ [ list.current ]
+            , current = x
+            , next = xs
+            }
+
+
 
 ---- VIEW ----
 
@@ -273,10 +288,13 @@ view : Model -> Html Msg
 view model =
     case model.quiz of
         Just quiz ->
-            div []
-                [ h1 [] [ text "Quiz" ]
-                , questionView quiz.questions.current
-                ]
+            if model.isFinished then
+                text "Finished"
+            else
+                div []
+                    [ h1 [] [ text "Quiz" ]
+                    , questionView quiz.questions.current
+                    ]
 
         Nothing ->
             text "Loading..."
