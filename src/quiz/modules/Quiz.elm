@@ -7,7 +7,6 @@ import Http
 import Json.Decode as Decode exposing (Decoder, (:=))
 import Json.Encode as Encode exposing (Value)
 import Task
-import ZipList
 
 
 ---- MODEL ----
@@ -21,7 +20,14 @@ type alias Model =
 type alias Quiz =
     { id : String
     , title : String
-    , questions : ZipList.ZipList Question
+    , questions : QuestionsList
+    }
+
+
+type alias QuestionsList =
+    { prev : List Question
+    , current : Question
+    , next : List Question
     }
 
 
@@ -50,6 +56,19 @@ init =
     )
 
 
+nextQuestion : QuestionsList -> QuestionsList
+nextQuestion list =
+    case list.next of
+        [] ->
+            list
+
+        x :: xs ->
+            { prev = list.prev ++ [ list.current ]
+            , current = x
+            , next = xs
+            }
+
+
 
 ---- JSON ----
 
@@ -59,7 +78,17 @@ decodeQuiz =
     Decode.object3 Quiz
         ("_id" := Decode.string)
         ("title" := Decode.string)
-        ("questions" := (ZipList.decoder decodeQuestion))
+        ("questions"
+            := Decode.andThen (Decode.list decodeQuestion)
+                (\list ->
+                    case list of
+                        [] ->
+                            Decode.fail "Cannot decode empty list into ZipList"
+
+                        x :: xs ->
+                            Decode.succeed (QuestionsList [] x xs)
+                )
+        )
 
 
 decodeQuestion : Decoder Question
@@ -99,8 +128,9 @@ encodeFeedback quiz =
         Encode.object
             [ ( "quiz", Encode.string quiz.id )
             , ( "answers"
-              , quiz.questions
-                    |> ZipList.toList
+              , quiz.questions.prev
+                    ++ [ quiz.questions.current ]
+                    ++ quiz.questions.next
                     |> List.map
                         (\question ->
                             case question of
@@ -180,7 +210,7 @@ update msg model =
         OptionAnswer str ->
             case model.quiz of
                 Just quiz ->
-                    ( { model | quiz = Just <| recordAnswer str quiz }
+                    ( { model | quiz = Just <| answerCurrentQuestion str quiz }
                     , Task.succeed ()
                         |> Task.perform (always NoOp) (always NextQuestion)
                     )
@@ -193,7 +223,7 @@ update msg model =
         InputAnswer str ->
             case model.quiz of
                 Just quiz ->
-                    ( { model | quiz = Just <| recordAnswer str quiz }
+                    ( { model | quiz = Just <| answerCurrentQuestion str quiz }
                     , Cmd.none
                     )
 
@@ -205,7 +235,7 @@ update msg model =
                 Just quiz ->
                     let
                         updatedQuiz =
-                            { quiz | questions = ZipList.next quiz.questions }
+                            { quiz | questions = nextQuestion quiz.questions }
                     in
                         ( { model | quiz = Just updatedQuiz }
                         , Cmd.none
@@ -215,21 +245,24 @@ update msg model =
                     ( model, Cmd.none )
 
 
-recordAnswer : String -> Quiz -> Quiz
-recordAnswer answer quiz =
-    { quiz
-        | questions =
-            ZipList.updateCurrent
-                (\question ->
-                    case question of
-                        TQuestionInput question' ->
-                            TQuestionInput { question' | answer = answer }
+answerCurrentQuestion : String -> Quiz -> Quiz
+answerCurrentQuestion answer quiz =
+    let
+        { questions } =
+            quiz
 
-                        TQuestionOption question' ->
-                            TQuestionOption { question' | answer = answer }
-                )
-                quiz.questions
-    }
+        updatedQuestions =
+            { questions
+                | current =
+                    case questions.current of
+                        TQuestionInput question ->
+                            TQuestionInput { question | answer = answer }
+
+                        TQuestionOption question ->
+                            TQuestionOption { question | answer = answer }
+            }
+    in
+        { quiz | questions = updatedQuestions }
 
 
 
@@ -242,9 +275,7 @@ view model =
         Just quiz ->
             div []
                 [ h1 [] [ text "Quiz" ]
-                , quiz.questions
-                    |> ZipList.current
-                    |> questionView
+                , questionView quiz.questions.current
                 ]
 
         Nothing ->
