@@ -2,17 +2,22 @@
 
 .question
   position: relative
-  white-space: nowrap
-  padding: calc($h * .5) $h
   margin-left: -$h
   background: transparent
   transition: background .25s
 
-  .number
-    color: $gray
+  .content
+    cursor: pointer
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    padding: calc($h * .5) $h
 
-  .title
-    font-size: calc($f * 1.25)
+    .number
+      color: $gray
+
+    .title
+      font-size: calc($f * 1.25)
 
   .up,
   .down
@@ -25,6 +30,12 @@
     opacity: 0
     background: $gray-light
     border-radius: 50%
+    transition: background .25s
+    cursor: pointer
+
+    &:hover
+      background: $brand-primary
+      color: #fff
 
   .down
     bottom: calc(-$h * .5)
@@ -34,6 +45,7 @@
 
   &:hover
     background: rgba(30,30,30,.05)
+    z-index: 2
 
     .up,
     .down
@@ -46,3 +58,15 @@
   &:last-of-type
     .down
       display: none
+
+
+.active
+  background: $brand-primary
+  color: #fff
+
+  &:hover
+    background: $brand-primary
+
+  .up,
+  .down
+    color: $text-color

@@ -5,12 +5,12 @@
 .content
   display: block
   position: relative
-  padding: calc($h + $nav-height) $h $h
+  padding: calc($h + $nav-height) $h calc($h + 60px)
 
-.questions
+.left-column,
+.right-column
   lost-column: 1/2 2
+
+.left-column
   border-right: 1px solid $gray-lighter
   min-height: 600px
-  
-.editor
-  lost-column: 1/2 2

@@ -1,5 +1,7 @@
 node_modules
 webpack.*
 index.js
+translator.js
 dev.js
 .public
+translation-*.js

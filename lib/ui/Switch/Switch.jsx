@@ -19,18 +19,12 @@ class Switch extends Component {
     name: '',
   }
 
-  state = {
-    active: this.props.active,
-  }
-
   toggle = () => {
-    this.props.onChange(this.props.name, !this.state.active);
-    this.setState({active: !this.state.active});
+    this.props.onChange(this.props.name, !this.props.active);
   }
 
   render() {
-    const { active } = this.state;
-    const { label } = this.props;
+    const { label, active } = this.props;
 
     const styleNames = cx({
       switcher: true,

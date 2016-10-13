@@ -1,0 +1,19 @@
+@import "ui/styles/variables.sass"
+
+.container
+  position: fixed
+  left: 0
+  bottom: 0
+  width: 100%
+  transform: translateY(100%)
+  opacity: 0
+  transition: all .35s ease
+  padding: $h
+  text-align: right
+  background: #fff
+  z-index: 1000
+  box-shadow: 0 -2px 5px -2px rgba(60, 60, 60, .45)
+
+  &.visible
+    opacity: 1
+    transform: translateY(0)

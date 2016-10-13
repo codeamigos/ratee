@@ -2,43 +2,35 @@
 
 .answer
   position: relative
+  border-radius: $border-radius-base
+
+  &:hover
+    background: rgba(30,30,30,.05)
+    z-index: 2
+    cursor: pointer
+    box-shadow: 0 1px 5px -2px rgba(30,30,30,.35)
 
   .delete
     position: absolute
     height: $h
     top: 50%
     margin-top: calc(-$h * .5)
-    right: calc($h * .5)
+    right: calc($h * .25)
     color: $gray
     transition: color .25s
+    cursor: pointer
+
 
     &:hover
       color: $brand-danger
 
-  .up,
-  .down
-    display: block
-    position: absolute
-    right: $h
-    size: $h
-    text-align: center
-    line-height: $h
-    opacity: 0
-    background: $gray-light
-    border-radius: 50%
-
-  .down
-    bottom: calc(-$h * .5)
-
-  .up
-    top: calc(-$h * .5)
-
-  &:hover
-    background: rgba(30,30,30,.05)
-
     .up,
     .down
       opacity: 1
+
+      &:hover
+        background: $brand-primary
+        color: #fff
 
   &:first-of-type
     .up
@@ -47,3 +39,21 @@
   &:last-of-type
     .down
       display: none
+
+.up,
+.down
+  display: block
+  position: absolute
+  right: $h
+  size: $h
+  text-align: center
+  line-height: $h
+  opacity: 0
+  background: $gray-light
+  border-radius: 50%
+
+.down
+  bottom: calc(-$h * .5)
+
+.up
+  top: calc(-$h * .5)

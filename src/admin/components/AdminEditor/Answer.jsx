@@ -29,7 +29,7 @@ class Answer extends Component {
           value={value}
           />
         <span onClick={onMoveup} styleName="up"><Icon icon="arrow_upward" sm/></span>
-        <span onClick={onDelete} styleName="delete"><Icon icon="delete_forever" sm/></span>
+        <span onClick={onDelete} styleName="delete"><Icon icon="close"/></span>
         <span onClick={onMovedown} styleName="down"><Icon icon="arrow_downward" sm/></span>
       </div>
     );
